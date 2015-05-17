@@ -8,7 +8,6 @@ Basic LAMP Development VM with a few added extras (Mongo, Redis, NodeJS etc)
 4. Clone the dev-vm repo
 
     git clone git@github.com:barrycrayon/dev-vm.git
-
 5. Run the VM
 
     cd dev-vm
