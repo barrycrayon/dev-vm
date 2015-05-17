@@ -1,0 +1,47 @@
+---
+- hosts: all
+
+  tasks:
+    - name: ensure ntpd is at the latest version
+      apt: name=ntp state=latest
+      notify:
+      - restart ntp
+
+    - name: install Apache
+      apt: name=apache2
+
+    - name: install MySQL 5.5
+      apt: name=mysql-server-5.5
+
+    - name: install Mongo
+      apt: name=mongodb
+
+    - name: install Redis
+      apt: name=redis-server
+
+    - name: install NodeJS
+      apt: name=nodejs
+
+    - name: add PHP 5.6 apt repo
+      apt_repository: repo='ppa:ondrej/php5-5.6'
+
+    - name: install PHP 5.6
+      apt: name=php5
+    - apt: name=php5-mysqlnd
+    - apt: name=php5-cli
+    - apt: name=php5-mongo
+    - apt: name=php5-redis
+      notify:
+      - restart apache
+
+    - name: store PHP version
+      shell: php -v
+      register: php_version
+      ignore_errors: True
+
+  handlers:
+    - name: restart ntp
+      service: name=ntp state=restarted
+
+    - name: restart apache
+      service: name=apache state=restarted
