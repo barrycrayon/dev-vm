@@ -4,8 +4,7 @@
   tasks:
     - name: ensure ntpd is at the latest version
       apt: name=ntp state=latest
-      notify:
-      - restart ntp
+      notify: restart ntp
 
     - name: install Apache
       apt: name=apache2
@@ -26,13 +25,28 @@
       apt_repository: repo='ppa:ondrej/php5-5.6'
 
     - name: install PHP 5.6
-      apt: name=php5
-    - apt: name=php5-mysqlnd
-    - apt: name=php5-cli
-    - apt: name=php5-mongo
-    - apt: name=php5-redis
-      notify:
-      - restart apache
+      apt: name={{ item }}
+      with_items:
+        - php5
+        - php5-mysqlnd
+        - php5-cli
+        - php5-mongo
+        - php5-redis
+        - libapache2-mod-php5
+      notify: restart apache
+
+    - name: disable current default host in apache
+      file: path=/etc/apache2/sites-enabled/000-default.conf state=absent
+
+    - name: add new default host confing to apache
+      template: src=templates/default-site.conf dest=/etc/apache2/sites-available/ mode=0755
+
+    - name: enable new apache deault host
+      file: path=/etc/apache2/sites-enabled/default-site.conf
+            src=/etc/apache2/sites-available/default-site.conf
+            state=link
+            force=yes
+      notify: restart apache
 
     - name: store PHP version
       shell: php -v
@@ -44,4 +58,4 @@
       service: name=ntp state=restarted
 
     - name: restart apache
-      service: name=apache state=restarted
+      service: name=apache2 state=restarted
