@@ -9,6 +9,9 @@
     - name: install Apache
       apt: name=apache2
 
+    - name: enable mod-rewrite for Apache
+      command: sudo a2enmod rewrite
+
     - name: install MySQL 5.5
       apt: name=mysql-server-5.5
 
@@ -32,14 +35,17 @@
         - php5-cli
         - php5-mongo
         - php5-redis
+        - php5-mcrypt
         - libapache2-mod-php5
       notify: restart apache
 
     - name: disable current default host in apache
       file: path=/etc/apache2/sites-enabled/000-default.conf state=absent
+      notify: restart apache
 
     - name: add new default host confing to apache
       template: src=templates/default-site.conf dest=/etc/apache2/sites-available/ mode=0755
+      notify: restart apache
 
     - name: enable new apache deault host
       file: path=/etc/apache2/sites-enabled/default-site.conf
